@@ -1,0 +1,14 @@
+* Create small web interface for the archiver
+    * List archived files
+    * include a button to manually run the archiver task
+    * create a button to do a full scan of the destination path to include file into db if they are not included
+    * before archiving first source scan and add to db with archived flag to false -> after archiving set to true
+    * add a logging section
+    * show duplicates
+    * add ap scheduler
+    * ability to add source folders and destination folders
+    * ability to archive a single source folder
+    * ability to scan the source folder and set checkboxes which are archived (can be db or just a simple scan and add to form)
+    * ability to delete files from the source folder only if archived!
+    * Delete = to a trash folder
+    * Create dockerfile -> mount bigger folder so we can add source and destination folders
