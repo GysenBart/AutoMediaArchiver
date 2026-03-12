@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Media Archiver</title>
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    margin:0;
+    background:#f4f6f9;
+}
+
+header{
+    background:#2c3e50;
+    color:white;
+    padding:15px 30px;
+}
+
+.container{
+    padding:20px 40px;
+}
+
+h2{
+    margin-top:40px;
+}
+
+.stats{
+    display:flex;
+    gap:20px;
+    margin-top:20px;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:8px;
+    box-shadow:0 2px 5px rgba(0,0,0,0.1);
+    flex:1;
+}
+
+button{
+    background:#3498db;
+    border:none;
+    color:white;
+    padding:10px 16px;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#2980b9;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+}
+
+th, td{
+    padding:10px;
+    border-bottom:1px solid #ddd;
+}
+
+th{
+    background:#f1f1f1;
+}
+
+.status-ok{
+    color:green;
+    font-weight:bold;
+}
+
+.status-pending{
+    color:orange;
+}
+
+form.inline{
+    display:inline;
+}
+
+input[type=text]{
+    padding:8px;
+    width:300px;
+}
+
+.scheduler{
+    margin-top:20px;
+}
+
+.logbox{
+    background:black;
+    color:#00ff00;
+    padding:15px;
+    height:200px;
+    overflow:auto;
+    font-family:monospace;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>Media Archiver</h1>
+</header>
+
+<div class="container">
+
+<!-- DASHBOARD -->
+
+<h2>Dashboard</h2>
+
+<div class="stats">
+
+<div class="card">
+<h3>Total Archived Files</h3>
+<p>{{ total_files }}</p>
+</div>
+
+<div class="card">
+<h3>Last Scan</h3>
+<p>{{ last_scan }}</p>
+</div>
+
+<div class="card">
+<h3>Next Scheduled Scan</h3>
+<p>{{ next_scan }}</p>
+</div>
+
+<div class="card">
+<h3>Active Jobs</h3>
+<p>{{ job_count }}</p>
+</div>
+
+</div>
+
+<form action="/scan" method="post">
+<button type="submit">Run Scan Now</button>
+</form>
+
+
+<!-- ARCHIVE JOBS -->
+
+<h2>Archive Jobs</h2>
+
+<table>
+
+<tr>
+<th>ID</th>
+<th>Source Folder</th>
+<th>Destination</th>
+<th>Status</th>
+<th>Actions</th>
+</tr>
+
+{% for job in jobs %}
+
+<tr>
+
+<td>{{ job.id }}</td>
+
+<td>{{ job.source_path }}</td>
+
+<td>{{ job.destination_path }}</td>
+
+<td>
+{% if job.active %}
+<span class="status-ok">Active</span>
+{% else %}
+<span class="status-pending">Disabled</span>
+{% endif %}
+</td>
+
+<td>
+
+<form class="inline" action="/scan/{{ job.id }}" method="post">
+<button>Scan</button>
+</form>
+
+<form class="inline" action="/delete_job/{{ job.id }}" method="post">
+<button>Delete</button>
+</form>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+
+<!-- ADD NEW JOB -->
+
+<h2>Add Archive Job</h2>
+
+<form action="/add_job" method="post">
+
+<p>
+Source Folder:<br>
+<input type="text" name="source_path" placeholder="/host/photos">
+</p>
+
+<p>
+Destination Folder:<br>
+<input type="text" name="destination_path" placeholder="/host/archive/photos">
+</p>
+
+<p>
+<input type="checkbox" name="subfolders">
+Scan Subfolders
+</p>
+
+<button type="submit">Add Job</button>
+
+</form>
+
+
+<!-- FILE LIST -->
+
+<h2>Files</h2>
+
+<form method="post" action="/delete_files">
+
+<table>
+
+<tr>
+<th>Select</th>
+<th>Filename</th>
+<th>Status</th>
+<th>Archived Location</th>
+</tr>
+
+{% for file in files %}
+
+<tr>
+
+<td>
+<input type="checkbox" name="file_ids" value="{{ file.id }}">
+</td>
+
+<td>{{ file.filename }}</td>
+
+<td>
+
+{% if file.archived %}
+<span class="status-ok">Archived</span>
+{% else %}
+<span class="status-pending">Pending</span>
+{% endif %}
+
+</td>
+
+<td>{{ file.archived_path }}</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+<button type="submit">Delete Selected</button>
+
+</form>
+
+
+<!-- SCHEDULER -->
+
+<h2>Scheduler</h2>
+
+<div class="scheduler">
+
+<form action="/schedule" method="post">
+
+Run every:
+
+<input type="text" name="interval_hours" value="{{ interval_hours }}">
+
+hours
+
+<button type="submit">Update</button>
+
+</form>
+
+</div>
+
+
+<!-- LOGS -->
+
+<h2>Logs</h2>
+
+<div class="logbox">
+
+{% for line in logs %}
+{{ line }}<br>
+{% endfor %}
+
+</div>
+
+</div>
+
+</body>
+</html>

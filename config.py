@@ -2,6 +2,11 @@ import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
+debug_enabled = True
+host = "0.0.0.0"
+port = 8080
+
+
 class Config(object):
     #sync_folder = "PATHVARIABLE"
     #dest_folder = "PATHVARIABLE"
