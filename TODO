@@ -1,4 +1,5 @@
 * Create small web interface for the archiver
+    * Make a beautyfull interface :) 
     * List archived files
     * include a button to manually run the archiver task
     * create a button to do a full scan of the destination path to include file into db if they are not included
