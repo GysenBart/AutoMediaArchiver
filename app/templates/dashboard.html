@@ -138,10 +138,29 @@ input[type=text]{
 
 </div>
 
-<form action="/scan" method="post">
+<!-- RUN SCAN MANUALLY -->
+<form action="{{ url_for('scan') }}" method="post">
 <button type="submit">Run Scan Now</button>
 </form>
 
+<!-- SCAN A ARCHIVE FOLDER MANUALLY -->
+<h2>Scan Destination Folder</h2>
+
+<form action="{{ url_for('scan_destination_folder') }}" method="post">
+<p>Scan a destination folder to archive existing media items</p>
+<p>
+Destination Folder:<br>
+<input type="text" name="destination_path" placeholder="/host/archive/photos">
+</p>
+
+<p>
+<input type="checkbox" name="subfolders">
+Scan Subfolders
+</p>
+
+<button type="submit">Run Scan</button>
+
+</form>
 
 <!-- ARCHIVE JOBS -->
 
@@ -177,11 +196,11 @@ input[type=text]{
 
 <td>
 
-<form class="inline" action="/scan/{{ job.id }}" method="post">
+<form class="inline" action="{{ url_for('scan', job_id=job.id) }}" method="post">
 <button>Scan</button>
 </form>
 
-<form class="inline" action="/delete_job/{{ job.id }}" method="post">
+<form class="inline" action="{{ url_for('delete_job', job_id=job.id) }}" method="post">
 <button>Delete</button>
 </form>
 
@@ -198,7 +217,7 @@ input[type=text]{
 
 <h2>Add Archive Job</h2>
 
-<form action="/add_job" method="post">
+<form action="{{ url_for('add_job') }}" method="post">
 
 <p>
 Source Folder:<br>
