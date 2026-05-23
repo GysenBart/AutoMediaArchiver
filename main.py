@@ -1,5 +1,5 @@
 from datetime import datetime
-from app.archiver import scanner, check_archive_date_dir
+from app.archiver import scanner, check_archive_date_dir, archive_file, MONTH_MASK
 from config import Config, basedir
 import os
 
@@ -13,6 +13,10 @@ print(f"Is directory: {os.path.isdir(Config.sync_folder)}")
 
 def archive_file(source_path, file, dest_path):
     print("test")
+
+
+
+
 
 walk_result = list(os.walk(Config.sync_folder))
 print(f"Walk result: {walk_result}")
@@ -30,7 +34,9 @@ for path, folders, files in walk_result:
     for filename in files:
         print(filename)
         date = check_archive_date_dir(filename)
-        print(date)
+        print(date.day)
+        print(MONTH_MASK[date.month])
+        print(date.year)
         full_path = os.path.join(path, filename)
 
         stat_info = os.stat(full_path)

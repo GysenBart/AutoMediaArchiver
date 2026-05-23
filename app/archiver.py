@@ -1,8 +1,24 @@
 # ALl methods for scanning and archiving files
 from pathlib import Path
 from datetime import datetime
+from enum import IntEnum
 import os
 from . import Config
+
+MONTH_MASK = {
+    1: "Januari",
+    2: "Februari",
+    3: "Maart",
+    4: "April",
+    5: "Mei",
+    6: "Juni",
+    7: "Juli",
+    8: "Augustus",
+    9: "September",
+    10: "Oktober",
+    11: "November",
+    12: "December"
+}
 
 def scanner(path, subfolders=False):
     # To just scan a folder and if necessary also subfolders
