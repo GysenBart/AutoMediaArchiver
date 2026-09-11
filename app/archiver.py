@@ -1,9 +1,13 @@
-# ALl methods for scanning and archiving files
+# All methods for scanning and archiving files
 from pathlib import Path
 from datetime import datetime
-from enum import IntEnum
 import os
+
+from click import File
 from . import Config
+import shutil
+from flask_sqlalchemy import SQLAlchemy
+from app import db
 
 MONTH_MASK = {
     1: "Januari",
@@ -20,40 +24,85 @@ MONTH_MASK = {
     12: "December"
 }
 
-def scanner(path, subfolders=False):
-    # To just scan a folder and if necessary also subfolders
-    print(path)
-    print(subfolders)
+# All methods for scanning and archiving files
+from pathlib import Path
+from datetime import datetime
+import os
 
-def check_archive_date_dir(date):
-    path = Path(date)
-    filename = path.stem  # removes .jpg
-    date = datetime.strptime(filename, "%Y%m%d_%H%M%S")
-    return date
+from click import File
+from . import Config
+import shutil
+from flask_sqlalchemy import SQLAlchemy
+from app import db
 
+MONTH_MASK = {
+    1: "Januari",
+    2: "Februari",
+    3: "Maart",
+    4: "April",
+    5: "Mei",
+    6: "Juni",
+    7: "Juli",
+    8: "Augustus",
+    9: "September",
+    10: "Oktober",
+    11: "November",
+    12: "December"
+}
 
-def archive_file(source_path, dest_path, file):
-    walk_result = list(os.walk(Config.sync_folder))
-    # Iterate over files in directory
-    for path, folders, files in walk_result:
-        print(f"Path: {path}")
-        print(f"Folders: {folders}")
-        print(f"Files: {files}")
+class Archiver:
+    def __init__(self, source_path, dest_path):
+        self.source_path = source_path
+        self.dest_path = dest_path
+    def scanner(self, path, subfolders=False):
+        # To just scan a folder and if necessary also subfolders
+        print("Scanning path:", path)
+        print("Include subfolders:", subfolders)
 
-        # Open file
-        for filename in files:
-            print(filename)
-            full_path = os.path.join(path, filename)
+        files = []
+        for p in Path(path).rglob('*') if subfolders else Path(path).glob('*'):
+            if p.is_file():
+                files.append(p)
 
-            stat_info = os.stat(full_path)
+        for file in files:
+            print(file)
 
-            file_size = stat_info.st_size
+        return files
 
-            modified_time = datetime.fromtimestamp(stat_info.st_ctime)
+    def check_archive_date_dir(self, date):
+        path = Path(date)
+        filename = path.stem  # removes .jpg
+        try:
+            date = datetime.strptime(filename, "%Y%m%d_%H%M%S")
+            return date
+        except ValueError:
+            return None
 
-            print(f"File: {full_path}")
-            print(f"Size: {file_size} bytes")
-            print(f"Modified: {modified_time}")
-            print("-" * 40)
+    def archive_file(self):
+        walk_result = list(os.walk(self.source_path))
+        for path, folders, files in walk_result:
+            for filename in files:
+                full_path = os.path.join(path, filename)
+                if not os.path.isfile(full_path):
+                    continue
 
+                stat_info = os.stat(full_path)
+                file_size = stat_info.st_size
+                modified_time = datetime.fromtimestamp(stat_info.st_mtime)
 
+                # Extract date from filename
+                date = self.check_archive_date_dir(filename)
+                if date:
+                    year = date.year
+                    month = MONTH_MASK[date.month]
+                    month_folder = os.path.join(self.dest_path, str(year), month)
+                    os.makedirs(month_folder, exist_ok=True)
+
+                    # Copy file to the new folder
+                    dest_file = os.path.join(month_folder, filename)
+                    shutil.copy2(full_path, dest_file)
+
+                    # Insert file metadata into the database
+                    new_file = File(name=filename, path=dest_file, size=file_size, modified_time=modified_time)
+                    db.session.add(new_file)
+                    db.session.commit()

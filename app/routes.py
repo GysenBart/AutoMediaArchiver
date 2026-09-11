@@ -1,6 +1,9 @@
 from app import app
 from flask import render_template, send_from_directory, flash, redirect, url_for, request
+from app.archiver import Archiver
+from config import Config
 
+# JOB ID MUST ALSO STORE THE ARCHIVER INSTANCE BECAUSE OF THE SOURCE AN DESTINATION PATHS
 
 @app.route("/")
 def dashboard():
@@ -33,6 +36,7 @@ def scan_destination_folder():
 # Run a manual scan for all jobs
 @app.route("/scan", methods=["POST"])
 def scan():
+    #scanner(Config.sync_folder)
     print("Scan method called")
     #return redirect("/dashboard")
     return render_template("dashboard.html")

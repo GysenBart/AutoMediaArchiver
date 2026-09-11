@@ -48,4 +48,28 @@ for path, folders, files in walk_result:
         print(f"File: {full_path}")
         print(f"Size: {file_size} bytes")
         print(f"Modified: {modified_time}")
+        archive_year = date.year
+        archive_month_name = MONTH_MASK[date.month]
+        dest_folder = os.path.join(Config.archive_folder, str(archive_year), archive_month_name)
+
+        if not os.path.exists(dest_folder):
+            print(f"Creating archive directory: {dest_folder}")
+            os.makedirs(dest_folder)
+
+        print(f"Archiving destination folder: {dest_folder}")
+
+        # Prepare data for potential database entry or further processing
+        file_archive_data = {
+            "original_path": full_path,
+            "filename": filename,
+            "archive_date": date,
+            "archive_year": archive_year,
+            "archive_month_name": archive_month_name,
+            "dest_folder": dest_folder,
+            "file_size": file_size,
+            "modified_time": modified_time
+        }
+        # In a real scenario, this 'file_archive_data' would then be used
+        # to insert into a database and then move/copy the file.
+        print(f"Prepared archive data for {filename}: {file_archive_data}")
         print("-" * 40)
