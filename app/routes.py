@@ -53,3 +53,8 @@ def delete_job(job_id):
     print("Scan id method called")
     #return redirect("/dashboard")
     return render_template("dashboard.html")
+
+# 404 Error Handler
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
